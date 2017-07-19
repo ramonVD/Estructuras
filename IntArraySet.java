@@ -97,15 +97,6 @@ public class IntArraySet {
 		return elements.get(index);
 	}
 	
-	//Necessaries?
-	public int[] get(int[] element){
-		int index = findIndex(element);
-		if (index >= 0) {
-			return elements.get(index);
-		}
-		return null;	
-	}
-	
 	public static IntArraySet setUnion(IntArraySet set1, IntArraySet set2) {
 		IntArraySet unionSet = new IntArraySet();
 		addElementsToUnionSet(unionSet, set1, set2);
