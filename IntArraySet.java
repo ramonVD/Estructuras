@@ -28,6 +28,9 @@ public class IntArraySet {
 	public boolean contains(int[] element) {
 		int sameElement;
 		int[] tmp;
+		if (size == 0) {
+			return false;
+		} 
 		for (int i = 0; i < size; i++) {
 			tmp = elements.get(i);
 			if (tmp.length != element.length) {
@@ -44,20 +47,18 @@ public class IntArraySet {
 		return false;
 	}
 	
-	
 	public boolean add(int[] element) {
-		if (size == 0) {
-			elements.add(element);
-		} 
-		else {
-			if (!contains(element)) {
-				elements.add(element);
-			} else {
-				return false;
-			}
+		int[] deepCopy = new int[element.length];
+		for (int i = 0; i < element.length; i++) {
+			deepCopy[i] = element[i];
 		}
-		size++;
-		return true;	
+		if (!contains(element)) {
+			elements.add(deepCopy);
+			size++;
+			return true;
+		} else {
+			return false;
+		}	
 	}
 	
 	public int findIndex(int[] element) {
@@ -133,10 +134,16 @@ public class IntArraySet {
 	
 	public String toString(){
 		String all = "";
+		int[] tmp;
 		for (int i = 0; i < size; i++) {
-			all += Arrays.toString(elements.get(i)) + ", ";
+			tmp = elements.get(i);
+			for (int j = 0; j < tmp.length; j++) {
+				all += tmp[j] + ", ";
+			}
 		}
-		all = all.substring(0, all.length()-2);
+		if (!all.equals("")){
+			all = all.substring(0, (all.length()-2));
+		}
 		return all;
 	}
 	
