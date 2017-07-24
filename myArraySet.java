@@ -3,31 +3,26 @@ package Listas;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/*Clase que hace las funciones de un set de objetos int[] (tengo que aprenderme los metodos
- * para programar clases que usan objetos generalistas....)
+/*Clase que hace las funciones de un set de objetos genericos de tipo array...
  * 
  * La precondicion en el Set es que no puede haber elementos repetidos, esto se comprueba
  * haciendo contains cada vez que hagas un add.
  * En el diseño hemos dejado que los elementos introducidos puedan ser de diferente tamaño,
  * a lo mejor habria que obligar a que fueran de un tamaño unico (ej no dejar [1,2,3] y [1,2] aunque 
  * los dos sean arrays de ints...
- * 
- * Creada para el servidor de hundir la flota para que guarde las coordenadas de los barcos de los 
- * jugadores que se obtienen como una serie de array de dos enteros que no se pueden repetir.
- */
-public class IntArraySet {
+*/
+public class myArraySet<E> {
 	
-	private ArrayList<int[]> elements;
+	private ArrayList<E[]> elements;
 	private int size;
 	
-	public IntArraySet(){
-		elements = new ArrayList<int[]>();
+	public myArraySet(){
+		elements = new ArrayList<E[]>();
 		size = 0;
 	}
-	
-	public boolean contains(int[] element) {
+	public boolean contains(E[] element) {
 		int sameElement;
-		int[] tmp;
+		E[] tmp;
 		if (size == 0) {
 			return false;
 		} 
@@ -47,12 +42,14 @@ public class IntArraySet {
 		return false;
 	}
 	
-	public boolean add(int[] element) {
-		int[] deepCopy = new int[element.length];
-		for (int i = 0; i < element.length; i++) {
-			deepCopy[i] = element[i];
-		}
+	
+	public boolean add(E[] element) {
 		if (!contains(element)) {
+			@SuppressWarnings("unchecked")  //Problems may arise here...
+			E[] deepCopy = (E[])new Object[element.length];
+			for (int i = 0; i < element.length; i++) {
+				deepCopy[i] = element[i];
+			}
 			elements.add(deepCopy);
 			size++;
 			return true;
@@ -61,9 +58,9 @@ public class IntArraySet {
 		}	
 	}
 	
-	public int findIndex(int[] element) {
+	public int findIndex(E[] element) {
 		if (!contains(element)) { return -1; }
-		int[] tmp;
+		E[] tmp;
 		int sameElement;
 		for (int i = 0; i < size; i++) {
 			tmp = elements.get(i);
@@ -81,12 +78,12 @@ public class IntArraySet {
 		return -1;
 	}
 	
-	public int[] remove(int index) {
+	public E[] remove(int index) {
 		return elements.remove(index);
 	}
 	
 	//Necessaries?
-	public int[] remove(int[] element) {
+	public E[] remove(E[] element) {
 		int index = findIndex(element);
 		if (index >= 0) {
 			return remove(index);
@@ -94,19 +91,19 @@ public class IntArraySet {
 		return null;
 	}
 	
-	public int[] get(int index){
+	public E[] get(int index){
 		return elements.get(index);
 	}
 	
-	public static IntArraySet setUnion(IntArraySet set1, IntArraySet set2) {
-		IntArraySet unionSet = new IntArraySet();
+	public myArraySet<E> setUnion(myArraySet<E> set1, myArraySet<E> set2) {
+		myArraySet<E> unionSet = new myArraySet<E>();
 		addElementsToUnionSet(unionSet, set1, set2);
 		addElementsToUnionSet(unionSet, set2, set1);
 		return unionSet;
 	}
 	
-	private static void addElementsToUnionSet(IntArraySet targetSet, IntArraySet set1, IntArraySet set2) {
-		int[] tmp;
+	private  void addElementsToUnionSet(myArraySet<E> targetSet, myArraySet<E> set1, myArraySet<E> set2) {
+		E[] tmp;
 		for (int i = 0; i < set1.size; i++) {
 			tmp = set1.get(i);
 			if (!targetSet.contains(tmp)) {
@@ -115,15 +112,15 @@ public class IntArraySet {
 		}
 	}
 	
-	public static IntArraySet setIntersection(IntArraySet set1, IntArraySet set2) {
-		IntArraySet unionSet = new IntArraySet();
+	public myArraySet<E> setIntersection(myArraySet<E> set1, myArraySet<E> set2) {
+		myArraySet<E> unionSet = new myArraySet<E>();
 		addElementsToIntersectSet(unionSet, set1, set2);
 		addElementsToIntersectSet(unionSet, set2, set1);
 		return unionSet;
 	}
 	
-	private static void addElementsToIntersectSet(IntArraySet targetSet, IntArraySet set1, IntArraySet set2) {
-		int[] tmp;
+	private  void addElementsToIntersectSet(myArraySet<E> targetSet, myArraySet<E> set1, myArraySet<E> set2) {
+		E[] tmp;
 		for (int i = 0; i < set1.size; i++) {
 			tmp = set1.get(i);
 			if (set2.contains(tmp)) {
@@ -134,32 +131,46 @@ public class IntArraySet {
 	
 	public String toString(){
 		String all = "";
-		int[] tmp;
+		for (int i = 0; i < size; i++) {
+			all += Arrays.toString(elements.get(i)) + ", ";
+		}
+		all = all.substring(0, all.length()-2);
+		return all;
+	}
+	
+	
+	public int size(){
+		return this.size;
+	}
+	
+	/*//Alternative way to print the set to console
+	public String toString(){
+		String all = "";
+		E[] tmp;
 		for (int i = 0; i < size; i++) {
 			tmp = elements.get(i);
 			for (int j = 0; j < tmp.length; j++) {
 				all += tmp[j] + ", ";
 			}
 		}
-		if (!all.equals("")){
-			all = all.substring(0, (all.length()-2));
-		}
+		all = all.substring(0, all.length()-2);
 		return all;
-	}
+	}*/
+
 	
 	public static void main(String[] args) {
 		/*Testeo*/
-		IntArraySet testSet = new IntArraySet();
-		IntArraySet testSet2 = new IntArraySet();
-		IntArraySet testSet3;
-		int[] testArray1 = {2,4};
-		int[] testArray2 = {3,6};
-		int[] testArray3 = {2,2};
-		int[] testArray4 = {1,8};
-		int[] testArray5 = {2,6};
-		int[] testArray6 = {2,4};
-		int[] testArray7 = {2,2};
-		int[] testArray8 = {5,2};
+		myArraySet<Integer> testSet = new myArraySet<Integer>();
+		myArraySet<Integer> testSet2 = new myArraySet<Integer>();
+		myArraySet<Integer> testSet3 = new myArraySet<Integer>();
+		Integer[] testArray1 = {2,4};
+		Integer[] testArray2 = {3,6};
+		Integer[] testArray3 = {2,2};
+		Integer[] testArray4 = {1,8};
+		Integer[] testArray5 = {2,6};
+		Integer[] testArray6 = {2,4};
+		Integer[] testArray7 = {2,2};
+		Integer[] testArray8 = {5,2};
 
 		System.out.println(testSet.add(testArray1));
 		System.out.println(testSet.add(testArray2));
@@ -173,9 +184,9 @@ public class IntArraySet {
 		System.out.println(testSet2.add(testArray7));
 		System.out.println(testSet.toString());
 		System.out.println(testSet2.toString());
-		testSet3 = setUnion(testSet,testSet2);
+		testSet3 = testSet3.setUnion(testSet,testSet2);
 		System.out.println(testSet3.toString());
-		System.out.println(testSet3.size);
+		System.out.println(testSet3.size());
 
 	}
 
