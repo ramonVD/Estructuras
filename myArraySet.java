@@ -153,7 +153,9 @@ public class myArraySet<E> {
 				all += tmp[j] + ", ";
 			}
 		}
-		all = all.substring(0, all.length()-2);
+		if (all.length() > 2){
+			all = all.substring(0, (all.length()-2));
+		}
 		return all;
 	}*/
 
