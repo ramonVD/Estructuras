@@ -1,4 +1,4 @@
-package GUIExperiments.TabbedPanel;
+package GUITests.TabbedPanel;
 
 import java.awt.Color;
 import java.awt.Dimension;
