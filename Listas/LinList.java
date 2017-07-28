@@ -1,51 +1,67 @@
 package Listas;
 
-/* Implementacion de una Lista linkeada de nodos que contienen Strings,
-tengo que pasar de Strings a objetos generalistas*/
-public class LinList {
-	protected Nodo primerNodo;
-	protected static final int INS_ANTES = 0;
-	protected static final int INS_SOBRE = 1;
-	protected static final int INS_DESPUES = 2;
+/* Implementation of a linked list with generalist nodes*/
+public class LinList<E> {
+	protected Nodo<E> primerNodo;
+	protected static final int INS_BEFORE = 0;
+	protected static final int INS_OVERWRITE = 1;
+	protected static final int INS_AFTER = 2;
 
 	
-	public LinList(String primerElemento){
-		primerNodo = new Nodo(primerElemento);
+	public LinList(E primerElemento){
+		primerNodo = new Nodo<E>(primerElemento);
 	}
 	
-	/*Inserta un nodo con elemento determinado al final de la lista*/
-	public void insertarNodoFinal(String elemento){
-		Nodo tmpNodo = this.primerNodo;
-		while (tmpNodo.siguiente != null){
-			tmpNodo = tmpNodo.siguiente;
-		}
-		tmpNodo.siguiente = new Nodo(elemento);
+	public LinList(){
+		primerNodo = new Nodo<E>(null);
 	}
 	
-	public Nodo buscarNodo(String elemento){
-		Nodo tmpNodo = this.primerNodo;
-		while (!tmpNodo.elemento.equals(elemento) && tmpNodo.siguiente != null) {
+	/*Function that compares two nodes, its set to test both by equality and
+	 * reference, change this to your elements needs	 */
+	private boolean compareNodes(E elemento1, E elemento2){
+		if ( (elemento1 == null || elemento2 == null) && !(elemento1 == null && elemento2 == null)) { return false; }
+		if (elemento1 == elemento2 || elemento1.equals(elemento2)){
+			return true;
+		}
+		return false;
+	}
+	
+	/*Inserts a node at the end of the list*/
+	public void pushNode(E elemento){
+		Nodo<E> tmpNodo = this.primerNodo;
+		if (tmpNodo.elemento == null) { //In the case of an empty list...
+			tmpNodo.elemento = elemento;
+		} else {
+			while (tmpNodo.siguiente != null){
+				tmpNodo = tmpNodo.siguiente;
+			}
+			tmpNodo.siguiente = new Nodo<E>(elemento);
+		}
+	}
+	
+	public Nodo<E> findNode(E elemento){
+		Nodo<E> tmpNodo = this.primerNodo;
+		while (!compareNodes(tmpNodo.elemento, elemento) && tmpNodo.siguiente != null) {
 			tmpNodo = tmpNodo.siguiente;
 		}
-		if (tmpNodo.elemento.equals(elemento)) return tmpNodo; //Por si simplemente ha bucleado a traves de todos los nodos
+		if (compareNodes(tmpNodo.elemento, elemento)) return tmpNodo; //Por si simplemente ha bucleado a traves de todos los nodos
 		return null;
 	}
 	
-	/*Elimina el Nodo con elemento determinado en la lista, devuelve cierto si lo elimina falso si no lo encuentra
-	 * NOTA: No podemos usar buscarNodo aqui ya que para eliminar hay que conocer el nodo anterior para cargarse la
-	 * referencia en siguiente por la del siguiente nodo*/
-	public boolean eliminarNodo(String elemento){
-		Nodo tmpNodo = this.primerNodo;
-		if (tmpNodo.elemento.equals(elemento)){ //Caso nodo raiz
+	/*Deletes the node with the chosen element from the list, returns true if it found and deleted it false if it couldnt*/
+	public boolean deleteNode(E elemento){
+		Nodo<E> tmpNodo = this.primerNodo;
+		if (tmpNodo == null) { return false; }
+		if (compareNodes(tmpNodo.elemento,elemento)){ //root node
 			if (tmpNodo.siguiente == null){  
-				System.out.println("Error, intentando eliminar nodo raiz de una lista vacia"); //Podriamos throwear Exception
+				System.out.println("Error, intentando eliminar nodo raiz de una lista vacia"); //Could throw exception here...
 				return false; 
 			} 
 			this.primerNodo = tmpNodo.siguiente;
 			return true;
 		}
 		while (tmpNodo.siguiente != null){
-			if (tmpNodo.siguiente.elemento.equals(elemento)){
+			if (compareNodes(tmpNodo.siguiente.elemento , elemento)){
 				tmpNodo.siguiente = tmpNodo.siguiente.siguiente;
 				return true;
 			}
@@ -54,56 +70,63 @@ public class LinList {
 		return false;
 	}
 	
-	/*Pone todos los nodos en consola*/
-	public void verNodos(){
-		Nodo tmpNodo = this.primerNodo;
+	/*Lists all elements in the nodes in the console*/
+	public void listNodes(){
+		Nodo<E> tmpNodo = this.primerNodo;
 		while (tmpNodo.siguiente != null){
-			System.out.print(tmpNodo.elemento + " -> ");
+			if (tmpNodo.elemento != null) {
+				System.out.print(tmpNodo.elemento.toString() + " -> ");
+			}
 			tmpNodo = tmpNodo.siguiente;
 		}
 		System.out.println(tmpNodo.elemento + " -> No hay mas elementos.");
 	}
 	
-	/*Vacia la lista, pone el elemento raiz como "" y su siguiente sin apuntar a ningun otro nodo*/
+	/*Empties the linked list and its references*/
 	public void vaciarLista(){
-		this.primerNodo.elemento = "";
+		this.primerNodo.elemento = null;
 		this.primerNodo.siguiente = null;
 	}
 	
-	/*Inserta un Nodo con un elemento determinado(nuevoElemento) en una posicion de la lista,
-	 * primero busca el nodo con elemento antiguoElemento, si lo encuentra usara tipo para determinar la insercion
-	 * tipo == INS_ANTES -> Inserta el nuevoNodo antes del antiguo
-	 * tipo == INS_SOBRE -> Sobreescribe el antiguo nodo por el nuevo
-	 * tipo == INS_DESPUES -> Inserta el nuevoNodo despues del antiguo
+	/*Inserts a node with the entered element in the list position determined 
+	 * by both the searched node (searched looking for its element) position and an 
+	 * insertion type:
+	 * type == INS_BEFORE -> It'll insert the new node before the old node.
+	 * type == INS_OVERWRITE -> It'll overwrite the old node with the new one
+	 * type == INS_AFTER -> It'll insert the new node after the old one.
+	 * In all cases it'll return true if it found the other node and inserted the new
+	 * one and false if it couldn't find it.
 	 */
-	public boolean insertarNodo(String antiguoElemento, String nuevoElemento, int tipo){
-		IteradorLinList iter1 = new IteradorLinList(this);
-		if (iter1.nodoActual.elemento.equals(antiguoElemento)){  //Caso especial nodo raiz, intentar hacer general????
-			if (tipo == INS_ANTES){ 
-				this.primerNodo = new Nodo(nuevoElemento);
+	public boolean insertarNodo(E antiguoElemento, E nuevoElemento, int tipo){
+		IteradorLinList<E> iter1 = new IteradorLinList<E>(this);
+		if (compareNodes(iter1.nodoActual.elemento, antiguoElemento)){  //Root node, special case, could change it???
+			if (tipo == INS_BEFORE){ 
+				this.primerNodo = new Nodo<E>(nuevoElemento);
 				this.primerNodo.siguiente = iter1.nodoActual;
-				return true;
 			}
-			else if (tipo == INS_SOBRE){
-				this.primerNodo = new Nodo(nuevoElemento);
+			else if (tipo == INS_OVERWRITE){
+				this.primerNodo = new Nodo<E>(nuevoElemento);
 				this.primerNodo.siguiente = iter1.getNodoSiguiente();
+				return true;
+
 			}
-			else if (tipo == INS_DESPUES){
-				this.primerNodo.siguiente = new Nodo(nuevoElemento);
+			else if (tipo == INS_AFTER){
+				this.primerNodo.siguiente = new Nodo<E>(nuevoElemento);
 				this.primerNodo.siguiente.siguiente = iter1.getNodoSiguiente();
 			}
+			return true;
 		}
 		while (iter1.hasNextItem()){
 			iter1.nextItem();
-			if (iter1.nodoActual.elemento.equals(antiguoElemento)){ //Caso general, elemento del nodo coincide con el que buscamos
-				Nodo tmpNodo = new Nodo(nuevoElemento);
+			if (compareNodes(iter1.nodoActual.elemento, antiguoElemento)){ //General case
+				Nodo<E> tmpNodo = new Nodo<E>(nuevoElemento);
 				switch (tipo){
-					case INS_ANTES:
+					case INS_BEFORE:
 						iter1.nodoAnterior.siguiente = tmpNodo;
 						iter1.nodoAnterior.siguiente.siguiente = iter1.nodoActual;
 						iter1.nodoAnterior = tmpNodo;
 						return true; //podriamos hacer break en todos i luego un solo return pero mas lineas de codigo :P
-					case INS_SOBRE:
+					case INS_OVERWRITE:
 						iter1.nodoAnterior.siguiente = tmpNodo;
 						iter1.nodoActual = tmpNodo;
 						iter1.nodoActual.siguiente = iter1.getNodoSiguiente();
@@ -120,14 +143,15 @@ public class LinList {
 	}
 		
 	public static void main(String[] args){
-		/*Testeo de la Linked List esta*/
-		LinList test1 = new LinList("hola");
-		test1.insertarNodoFinal("mundo");
-		test1.insertarNodoFinal("adios");
-		test1.insertarNodoFinal("bye");
-		test1.insertarNodoFinal("mundor");
-		System.out.println(test1.insertarNodo("hola", "tesaaaat",INS_DESPUES));
-		System.out.println(test1.buscarNodo("tesaaaat").elemento);
-		test1.verNodos();
+		/*Some light testing*/
+		LinList<String> test1 = new LinList<String>("hola");
+		test1.pushNode("mundo");
+		test1.pushNode("adios");
+		test1.pushNode("bye");
+		test1.pushNode("mundor");
+		System.out.println(test1.insertarNodo("adios", "test",INS_AFTER));
+		System.out.println(test1.deleteNode("mundor"));
+		System.out.println(test1.findNode("test"));
+		test1.listNodes();
 	}
 }

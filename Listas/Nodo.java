@@ -1,21 +1,20 @@
 package Listas;
 
-/*Clase para definir un Nodo de la Linked list, hacer mas general, que el elemento sea Object en vez de String...*/
-public class Nodo {
+/*Class created to define a node of a linked list that has a generalist element
+ * as its stored data
+ */
+public class Nodo<E> {
 
-		protected String elemento;
-		protected Nodo siguiente;
-		
-		public Nodo(){
-			elemento = "";
-			siguiente = null;
-		}
-		
-		public Nodo(String elemento){
+		protected E elemento;
+		protected Nodo<E> siguiente;
+
+		public Nodo(E elemento){
 			this.elemento = elemento;
 			siguiente = null;
 		}
 		
-		/*No pongo getters ni setters porque sera en LinList*/
-		
+		public String toString(){
+			return "Node with element: " + this.elemento.toString();
+		}
+				
 }
